@@ -25,6 +25,10 @@ class SecurityController extends AbstractController
         if(isset($values->username,$values->password)) {
             $user = new User();
             $user->setemail($values->username);
+            $user->setNom($values->nom);
+            $user->setPrenom($values->prenom);
+            $user->setSexe($values->sexe);
+            $user->setDateNaissance($values->date_naissance);
             $user->setPassword($passwordEncoder->encodePassword($user, $values->password));
             $user->setRoles(['ROLE_ADMIN']);
             $errors = $validator->validate($user);
@@ -49,19 +53,6 @@ class SecurityController extends AbstractController
             'message' => 'Vous devez renseigner les clés username et password'
         ];
         return new JsonResponse($data, 500);
-    }
-
-    /**
-     * @Route("/login", name="app_login")
-     */
-    public function login(AuthenticationUtils $authenticationUtils): Response
-    {
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
-
-        return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
  /**
      * @Route(name="api_login", path="/api/login_check")
