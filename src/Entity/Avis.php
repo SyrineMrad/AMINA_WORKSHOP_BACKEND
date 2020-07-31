@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\PapierRepository;
+use App\Repository\AvisRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=PapierRepository::class)
+ * @ORM\Entity(repositoryClass=AvisRepository::class)
  */
-class Papier
+class Avis
 {
     /**
      * @ORM\Id()
@@ -20,20 +20,15 @@ class Papier
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $titre;
+    private $commentaire;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="integer")
      */
-    private $description;
+    private $score;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $file;
-
-    /**
-     * @ORM\Column(type="boolean",options={"default": false})
+     * @ORM\Column(type="boolean")
      */
     private $etat;
 
@@ -57,38 +52,26 @@ class Papier
         return $this->id;
     }
 
-    public function getTitre(): ?string
+    public function getCommentaire(): ?string
     {
-        return $this->titre;
+        return $this->commentaire;
     }
 
-    public function setTitre(string $titre): self
+    public function setCommentaire(string $commentaire): self
     {
-        $this->titre = $titre;
+        $this->commentaire = $commentaire;
 
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getScore(): ?int
     {
-        return $this->description;
+        return $this->score;
     }
 
-    public function setDescription(string $description): self
+    public function setScore(int $score): self
     {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    public function getFile(): ?string
-    {
-        return $this->file;
-    }
-
-    public function setFile(string $file): self
-    {
-        $this->file = $file;
+        $this->score = $score;
 
         return $this;
     }
@@ -140,5 +123,4 @@ class Papier
 
         return $this;
     }
-
 }

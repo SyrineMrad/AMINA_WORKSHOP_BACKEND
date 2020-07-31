@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -53,6 +55,16 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      */
     private $date_naissance;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Papier::class, mappedBy="user_id")
+     */
+    private $papiers;
+
+    public function __construct()
+    {
+        $this->papiers = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -176,6 +188,37 @@ class User implements UserInterface
     public function setDateNaissance(string $date_naissance): self
     {
         $this->date_naissance = $date_naissance;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Papier[]
+     */
+    public function getPapiers(): Collection
+    {
+        return $this->papiers;
+    }
+
+    public function addPapier(Papier $papier): self
+    {
+        if (!$this->papiers->contains($papier)) {
+            $this->papiers[] = $papier;
+            $papier->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removePapier(Papier $papier): self
+    {
+        if ($this->papiers->contains($papier)) {
+            $this->papiers->removeElement($papier);
+            // set the owning side to null (unless already changed)
+            if ($papier->getUserId() === $this) {
+                $papier->setUserId(null);
+            }
+        }
 
         return $this;
     }

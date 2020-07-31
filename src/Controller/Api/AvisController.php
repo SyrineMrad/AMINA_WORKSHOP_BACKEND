@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Controller\Api;
-use App\Entity\Papier;
-use App\Repository\PapierRepository;
+use App\Entity\Avis;
+use App\Repository\AvisRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,70 +19,70 @@ use Symfony\Component\Security\Core\Security;
 /**
  * @Route("/api")
  */
-class PapierController extends AbstractController
+class AvisController extends AbstractController
 {
   /**
-     * @Route("/papiers/add_papier", name="add_papier", methods={"POST"})
+     * @Route("/avis/add_avis", name="add_avis", methods={"POST"})
      */
     public function new(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
-        $papier=$request->getContent();
-        $papier = $serializer->deserialize($request->getContent(), Papier::class, 'json');
-        $papier->setUser( $this->getUser());// save user_id on papier
-        $errors = $validator->validate($papier);
+        $avis=$request->getContent();
+        $avis = $serializer->deserialize($request->getContent(), Avis::class, 'json');
+        $avis->setUser( $this->getUser());// save user_id on avis
+        $errors = $validator->validate($avis);
         if(count($errors)) {
             $errors = $serializer->serialize($errors, 'json');
             return new Response($errors, 500, [
                 'Content-Type' => 'application/json'
             ]);
         }
-        $entityManager->persist($papier);
+        $entityManager->persist($avis);
         $entityManager->flush();
         $data = [
             'status' => 201,
-            'message' => 'papier a bien été ajoutée'
+            'message' => 'avis a bien été ajoutée'
         ];
         return new JsonResponse($data, 201);
     }
     /**
-     * @Route("/papiers", name="list_papier", methods={"GET"})
+     * @Route("/avis", name="list_avis", methods={"GET"})
      */
-    public function getSendedPapiers(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer)
+    public function getSendedAvis(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer)
     {
-        $papiers = $entityManager->getRepository(Papier::class)->findBy(array('etat' => true));
-        $data = $serializer->serialize($papiers, 'json');
+        $avis = $entityManager->getRepository(Avis::class)->findBy(array('etat' => true));
+        $data = $serializer->serialize($avis, 'json');
         return new Response($data, 200, [
             'Content-Type' => 'application/json'
         ]);
     }
 
     /**
-     * @Route("/papiers/draftpapiers", name="listdraft_papier", methods={"GET"})
+     * @Route("/avis/draftavis", name="listdraft_avis", methods={"GET"})
      */
-    public function getDraftPapiers(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer)
+    public function getDraftAvis(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer)
     {
-        $papiers = $entityManager->getRepository(Papier::class)->findBy(array('etat' => false));
-        $data = $serializer->serialize($papiers, 'json');
+        $avis = $entityManager->getRepository(Avis::class)->findBy(array('etat' => false));
+        $data = $serializer->serialize($avis, 'json');
         return new Response($data, 200, [
             'Content-Type' => 'application/json'
         ]);
     }
 
     /**
-     * @Route("/papiers/update_papier/{id}", name="update_papier", methods={"PUT"})
+     * @Route("/avis/update_avis/{id}", name="update_avis", methods={"PUT"})
      */
-    public function update(Request $request, SerializerInterface $serializer, Papier $papier, ValidatorInterface $validator, EntityManagerInterface $entityManager)
+    public function update(Request $request, SerializerInterface $serializer, Avis $avis, ValidatorInterface $validator, EntityManagerInterface $entityManager)
     {
-        $papierUpdate = $entityManager->getRepository(Papier::class)->find($papier->getId());
+        $AvisUpdate = $entityManager->getRepository(Avis::class)->find($avis->getId());
         $data = json_decode($request->getContent());
         foreach ($data as $key => $value){
             if($key && !empty($value)) {
                 $name = ucfirst($key);
                 $setter = 'set'.$name;
-                $papierUpdate->$setter($value);
+                $AvisUpdate->$setter($value);
             }
         }
-        $errors = $validator->validate($papierUpdate);
+        $errors = $validator->validate($AvisUpdate);
         if(count($errors)) {
             $errors = $serializer->serialize($errors, 'json');
             return new Response($errors, 500, [
@@ -92,35 +92,35 @@ class PapierController extends AbstractController
         $entityManager->flush();
         $data = [
             'status' => 200,
-            'message' => 'papier a bien été mis à jour'
+            'message' => 'avis a bien été mis à jour'
         ];
         return new JsonResponse($data);
     }
 
     /**
-     * @Route("/papiers/delete_papier/{id}", name="delete_papier", methods={"DELETE"})
+     * @Route("/avis/delete_avis/{id}", name="delete_avis", methods={"DELETE"})
      */
-    public function delete(Papier $papier, EntityManagerInterface $entityManager)
+    public function delete(Avis $avis, EntityManagerInterface $entityManager)
     {
-        $entityManager->remove($papier);
+        $entityManager->remove($avis);
         $entityManager->flush();
         return new Response(null, 204);
     }
 
     /**
-     * @Route("/papiers/send_papier/{id}", name="send_papier", methods={"PUT"})
+     * @Route("/avis/send_avis/{id}", name="send_avis", methods={"PUT"})
      */
-    public function sendPapier(Papier $papier, EntityManagerInterface $entityManager)
+    public function sendAvis(Avis $avis, EntityManagerInterface $entityManager)
     {
-        //soumettre papier(changement etat false à true )
-        $papier = $entityManager->getRepository(Papier::class)->find($papier->getId());
+        //soumettre avis(changement etat false à true )
+        $avis = $entityManager->getRepository(Avis::class)->find($avis->getId());
     
-        $papier->setEtat(true);
+        $avis->setEtat(true);
     
         $entityManager->flush();
         $data = [
             'status' => 200,
-            'message' => 'papier a bien envoyé'
+            'message' => 'avis a bien envoyé'
         ];
         return new JsonResponse($data);
     }
