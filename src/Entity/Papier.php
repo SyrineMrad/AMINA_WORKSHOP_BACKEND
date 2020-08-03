@@ -129,7 +129,7 @@ class Papier
         return $this;
     }
 
-    public function getUser(): ?user
+    public function getUser(): ?userl
     {
         return $this->user;
     }

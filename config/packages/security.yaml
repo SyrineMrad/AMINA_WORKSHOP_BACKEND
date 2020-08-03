@@ -29,6 +29,9 @@ security:
             guard:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator  
+            logout:
+                path:   app_logout    
+                target: /api/login_check        
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
@@ -36,6 +39,6 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/papiers,       roles: ROLE_CHERCHEUR }
-        - { path: ^/api/avis,       roles: ROLE_EXPERT }
+        - { path: ^/api/papiers,       roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/avis,       roles: IS_AUTHENTICATED_ANONYMOUSLY }
         
