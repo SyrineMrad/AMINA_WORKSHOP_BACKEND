@@ -48,9 +48,15 @@ class Papier
     private $updated_at;
 
     /**
-     * @ORM\ManyToOne(targetEntity=user::class)
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="papiers")
      */
     private $user;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $expert_id;
+
 
     public function getId(): ?int
     {
@@ -129,16 +135,29 @@ class Papier
         return $this;
     }
 
-    public function getUser(): ?userl
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?user $user): self
+    public function setUser(?User $user): self
     {
         $this->user = $user;
 
         return $this;
     }
+
+    public function getExpertId(): ?int
+    {
+        return $this->expert_id;
+    }
+
+    public function setExpertId(?int $expert_id): self
+    {
+        $this->expert_id = $expert_id;
+
+        return $this;
+    }
+
 
 }

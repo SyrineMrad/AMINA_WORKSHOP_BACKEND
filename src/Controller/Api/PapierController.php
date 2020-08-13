@@ -28,7 +28,10 @@ class PapierController extends AbstractController
     {
         $papier=$request->getContent();
         $papier = $serializer->deserialize($request->getContent(), Papier::class, 'json');
-        $papier->setUser( $this->getUser());// save user_id on papier
+        $papier->setCreatedAt(new \DateTime());
+        $papier->setUpdatedAt(new \DateTime());
+        $papier->setEtat(false);
+        $papier->setUser($this->getUser());// save user_id on papier
         $errors = $validator->validate($papier);
         if(count($errors)) {
             $errors = $serializer->serialize($errors, 'json');
@@ -61,9 +64,16 @@ class PapierController extends AbstractController
      */
     public function getDraftPapiers(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer)
     {
-        $papiers = $entityManager->getRepository(Papier::class)->findBy(array('etat' => false));
-        $data = $serializer->serialize($papiers, 'json');
-        return new Response($data, 200, [
+        $papiers = $entityManager->getRepository(Papier::class)->findBy([
+            'user' => ($this->getUser())->getId(),
+            'etat' => false,
+        ]);
+        $jsonContent = $serializer->serialize($papiers, 'json', [
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+             }
+         ]);
+        return new Response($jsonContent, 200, [
             'Content-Type' => 'application/json'
         ]);
     }
@@ -73,6 +83,7 @@ class PapierController extends AbstractController
      */
     public function update(Request $request, SerializerInterface $serializer, Papier $papier, ValidatorInterface $validator, EntityManagerInterface $entityManager)
     {
+    
         $papierUpdate = $entityManager->getRepository(Papier::class)->find($papier->getId());
         $data = json_decode($request->getContent());
         foreach ($data as $key => $value){
@@ -124,4 +135,45 @@ class PapierController extends AbstractController
         ];
         return new JsonResponse($data);
     }
+    
+    /**
+     * @Route("/papiers/assign_papier/{id}", name="assgin_papier", methods={"PUT"})
+     */
+    public function AssignPapier(Request $request,SerializerInterface $serializer,Papier $papier, EntityManagerInterface $entityManager)
+    { 
+        // a optimiser 
+        $papier = $entityManager->getRepository(Papier::class)->find($papier->getId());
+        $data = json_decode($request->getContent());
+        foreach ($data as $key => $value){
+            if($key && !empty($value)) {
+                $papier->setExpertId($value);
+            }
+        }
+        $entityManager->flush();
+        $data = [
+            'status' => 200,
+            'message' => 'papier a bien affecté'
+        ];
+        return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/Assignedpapiers/getAssignedPapiers", name="assigned_papiers", methods={"GET"})
+     */
+    public function getAssignedPapiers(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer)
+    {
+        $papiers = $entityManager->getRepository(Papier::class)->findBy([
+            'expert_id' => ($this->getUser())->getId(),
+            'etat' => true,
+        ]);
+        $jsonContent = $serializer->serialize($papiers, 'json', [
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+             }
+         ]);
+        return new Response($jsonContent, 200, [
+            'Content-Type' => 'application/json'
+        ]);
+    }
+
 }

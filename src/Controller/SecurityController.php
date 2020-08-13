@@ -19,7 +19,7 @@ class SecurityController extends AbstractController
    /**
      * @Route("/register", name="register", methods={"POST"})
      */
-    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator,\Swift_Mailer $mailer)
+    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator)
     {
         $values = json_decode($request->getContent());
             if($values->confirmpassword!=$values->password) {
@@ -36,7 +36,7 @@ class SecurityController extends AbstractController
             $user->setSexe($values->sexe);
             $user->setDateNaissance($values->date_naissance);
             $user->setPassword($passwordEncoder->encodePassword($user, $values->password));
-            $user->setRoles(['ROLE_ADMIN']);
+            $user->setRoles(['ROLE_CHERCHEUR']);
             $errors = $validator->validate($user);
             if(count($errors)) {
                 $errors = $serializer->serialize($errors, 'json');
@@ -46,19 +46,7 @@ class SecurityController extends AbstractController
             }
             $entityManager->persist($user);
             $entityManager->flush();
-            
-            $message = (new \Swift_Message('Nouveau contact'))
-            // On attribue l'expéditeur
-            ->setFrom('mraadsyrine@gmail.com')
-        
-            // On attribue le destinataire
-            ->setTo('mraadsyrine@gmail.com')
-        
-            // On crée le texte avec la vue
-            ->setBody ( 'text/html');
 
-        ;
-        $mailer->send($message);
             $data = [
                 'status' => 201,
                 'message' => 'L\'utilisateur a été créé'

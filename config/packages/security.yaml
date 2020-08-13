@@ -39,6 +39,7 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/papiers,       roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/avis,       roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/papiers,       roles: ROLE_CHERCHEUR }
+        - { path: ^/api/avis,       roles: ROLE_EXPERT }
+         - { path: ^/api/Assignedpapiers,       roles: ROLE_EXPERT }
         

@@ -57,7 +57,7 @@ class User implements UserInterface
     private $date_naissance;
 
     /**
-     * @ORM\OneToMany(targetEntity=Papier::class, mappedBy="user_id")
+     * @ORM\OneToMany(targetEntity=Papier::class, mappedBy="user")
      */
     private $papiers;
 
@@ -65,6 +65,7 @@ class User implements UserInterface
     {
         $this->papiers = new ArrayCollection();
     }
+
 
     public function getId(): ?int
     {
@@ -193,33 +194,36 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection|Papier[]
+     * @return Collection|papier[]
      */
     public function getPapiers(): Collection
     {
         return $this->papiers;
     }
 
-    public function addPapier(Papier $papier): self
+    public function addPapier(papier $papier): self
     {
         if (!$this->papiers->contains($papier)) {
             $this->papiers[] = $papier;
-            $papier->setUserId($this);
+            $papier->setUser($this);
         }
 
         return $this;
     }
 
-    public function removePapier(Papier $papier): self
+    public function removePapier(papier $papier): self
     {
         if ($this->papiers->contains($papier)) {
             $this->papiers->removeElement($papier);
             // set the owning side to null (unless already changed)
-            if ($papier->getUserId() === $this) {
-                $papier->setUserId(null);
+            if ($papier->getUser() === $this) {
+                $papier->setUser(null);
             }
         }
 
         return $this;
     }
+
+
+   
 }

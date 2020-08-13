@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\Security;
 class AvisController extends AbstractController
 {
   /**
-     * @Route("/avis/add_avis", name="add_avis", methods={"POST"})
+     * @Route("/avis/add_avis/id", name="add_avis", methods={"POST"})
      */
     public function new(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
