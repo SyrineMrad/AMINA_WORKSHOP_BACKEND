@@ -49,10 +49,9 @@ class ExpertController extends AbstractController
     /**
      * @Route("/experts/update_expert/{id}", name="update_expert", methods={"PUT"})
      */
-    public function update(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager)
+    public function update(Request $request, SerializerInterface $serializer, User $expert, ValidatorInterface $validator, EntityManagerInterface $entityManager)
     {
-        $user=$this->getUser();
-        $expertUpdate = $entityManager->getRepository(User::class)->find($user->getId());
+        $expertUpdate = $entityManager->getRepository(User::class)->find($expert->getId());
         $data = json_decode($request->getContent());
         foreach ($data as $key => $value){
             if($key && !empty($value)) {
@@ -79,12 +78,11 @@ class ExpertController extends AbstractController
     /**
      * @Route("/experts/delete_expert/{id}", name="delete_expert", methods={"DELETE"})
      */
-    public function delete(EntityManagerInterface $entityManager)
+    public function delete(User $expert, EntityManagerInterface $entityManager)
     {
-        //a tester
-        //$entityManager->remove(User::class);
-        //$entityManager->flush();
-        //return new Response(null, 204);
+        $entityManager->remove($expert);
+        $entityManager->flush();
+        return new Response(null, 204);
     }
         /**
      * @Route("/experts", name="list_experts", methods={"GET"})
