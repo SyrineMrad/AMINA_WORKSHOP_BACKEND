@@ -47,6 +47,13 @@ class Avis
      */
     private $user;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Papier::class, inversedBy="Avis")
+     */
+    private $papier;
+
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -120,6 +127,18 @@ class Avis
     public function setUser(?user $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getPapier(): ?Papier
+    {
+        return $this->papier;
+    }
+
+    public function setPapier(?Papier $papier): self
+    {
+        $this->papier = $papier;
 
         return $this;
     }

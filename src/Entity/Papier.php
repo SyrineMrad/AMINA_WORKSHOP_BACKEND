@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PapierRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -56,8 +58,15 @@ class Papier
      * @ORM\Column(type="integer", nullable=true)
      */
     private $expert_id;
+    /**
+     * @ORM\OneToMany(targetEntity=Avis::class, mappedBy="papier")
+     */
+    private $Avis;
 
-
+    public function __construct()
+    {
+        $this->avis = new ArrayCollection();
+    }
     public function getId(): ?int
     {
         return $this->id;
@@ -158,6 +167,5 @@ class Papier
 
         return $this;
     }
-
 
 }

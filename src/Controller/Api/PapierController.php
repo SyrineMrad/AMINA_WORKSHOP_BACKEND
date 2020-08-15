@@ -53,7 +53,11 @@ class PapierController extends AbstractController
     public function getSendedPapiers(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer)
     {
         $papiers = $entityManager->getRepository(Papier::class)->findBy(array('etat' => true));
-        $data = $serializer->serialize($papiers, 'json');
+        $data = $serializer->serialize($papiers, 'json', [
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+             }
+         ]);
         return new Response($data, 200, [
             'Content-Type' => 'application/json'
         ]);
@@ -93,6 +97,7 @@ class PapierController extends AbstractController
                 $papierUpdate->$setter($value);
             }
         }
+        $papierUpdate->setUpdatedAt(new \DateTime());
         $errors = $validator->validate($papierUpdate);
         if(count($errors)) {
             $errors = $serializer->serialize($errors, 'json');

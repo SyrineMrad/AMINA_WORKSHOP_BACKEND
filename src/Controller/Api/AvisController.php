@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 use App\Entity\Avis;
+use App\Entity\Papier;
 use App\Repository\AvisRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -16,19 +17,24 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Security\Core\Security;
 
-/**
- * @Route("/api")
- */
+    /**
+     * @Route("/api")
+     */
 class AvisController extends AbstractController
 {
   /**
-     * @Route("/avis/add_avis/id", name="add_avis", methods={"POST"})
+     * @Route("/avis/add_avis/{id}", name="add_avis", methods={"POST"})
      */
     public function new(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
         $avis=$request->getContent();
+        $papier = $entityManager->getRepository(Papier::class)->find($request->get('id'));
         $avis = $serializer->deserialize($request->getContent(), Avis::class, 'json');
         $avis->setUser( $this->getUser());// save user_id on avis
+        $avis->setPapier($papier);//save papier_id
+        $avis->setCreatedAt(new \DateTime());
+        $avis->setUpdatedAt(new \DateTime());
+        $avis->setEtat(false);
         $errors = $validator->validate($avis);
         if(count($errors)) {
             $errors = $serializer->serialize($errors, 'json');
@@ -50,7 +56,11 @@ class AvisController extends AbstractController
     public function getSendedAvis(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer)
     {
         $avis = $entityManager->getRepository(Avis::class)->findBy(array('etat' => true));
-        $data = $serializer->serialize($avis, 'json');
+        $data = $serializer->serialize($avis, 'json', [
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+             }
+         ]);
         return new Response($data, 200, [
             'Content-Type' => 'application/json'
         ]);
@@ -62,7 +72,11 @@ class AvisController extends AbstractController
     public function getDraftAvis(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer)
     {
         $avis = $entityManager->getRepository(Avis::class)->findBy(array('etat' => false));
-        $data = $serializer->serialize($avis, 'json');
+        $data = $serializer->serialize($avis, 'json', [
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+             }
+         ]);
         return new Response($data, 200, [
             'Content-Type' => 'application/json'
         ]);
@@ -82,6 +96,7 @@ class AvisController extends AbstractController
                 $AvisUpdate->$setter($value);
             }
         }
+        $AvisUpdate->setUpdatedAt(new \DateTime());
         $errors = $validator->validate($AvisUpdate);
         if(count($errors)) {
             $errors = $serializer->serialize($errors, 'json');

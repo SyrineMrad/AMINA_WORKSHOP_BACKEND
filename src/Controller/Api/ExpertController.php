@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * @Route("/api")
@@ -24,12 +25,16 @@ class ExpertController extends AbstractController
   /**
      * @Route("/experts/add_expert", name="add_expert", methods={"POST"})
      */
-    public function new(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, ValidatorInterface $validator)
+    public function new(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, ValidatorInterface $validator,UserPasswordEncoderInterface $passwordEncoder)
     {
-        $expert=$request->getContent();
-        $expert = $serializer->deserialize($request->getContent(), User::class, 'json');
-        $expert->setCreatedAt(new \DateTime());
-        $expert->setUpdatedAt(new \DateTime());
+        $values = json_decode($request->getContent());
+        $expert = new User();
+        $expert->setemail($values->username);
+        $expert->setNom($values->nom);
+        $expert->setPrenom($values->prenom);
+        $expert->setSexe($values->sexe);
+        $expert->setDateNaissance($values->date_naissance);
+        $expert->setPassword($passwordEncoder->encodePassword($expert, $values->password));
         $expert->setRoles(['ROLE_EXPERT']);
         $errors = $validator->validate($expert);
         if(count($errors)) {
@@ -49,17 +54,15 @@ class ExpertController extends AbstractController
     /**
      * @Route("/experts/update_expert/{id}", name="update_expert", methods={"PUT"})
      */
-    public function update(Request $request, SerializerInterface $serializer, User $expert, ValidatorInterface $validator, EntityManagerInterface $entityManager)
+    public function update(Request $request, SerializerInterface $serializer, User $expert, ValidatorInterface $validator, EntityManagerInterface $entityManager,UserPasswordEncoderInterface $passwordEncoder)
     {
         $expertUpdate = $entityManager->getRepository(User::class)->find($expert->getId());
-        $data = json_decode($request->getContent());
-        foreach ($data as $key => $value){
-            if($key && !empty($value)) {
-                $name = ucfirst($key);
-                $setter = 'set'.$name;
-                $expertUpdate->$setter($value);
-            }
-        }
+        $values = json_decode($request->getContent());
+        $expertUpdate->setemail($values->username);
+        $expertUpdate->setNom($values->nom);
+        $expertUpdate->setPrenom($values->prenom);
+        $expertUpdate->setSexe($values->sexe);
+        $expertUpdate->setDateNaissance($values->date_naissance);
         $errors = $validator->validate($expertUpdate);
         if(count($errors)) {
             $errors = $serializer->serialize($errors, 'json');
