@@ -180,5 +180,19 @@ class PapierController extends AbstractController
             'Content-Type' => 'application/json'
         ]);
     }
-
+/**
+     * @Route("/papiers/getpapier/{id}", name="getpapier", methods={"GET"})
+     */
+    public function getPapier(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer,Papier $papier)
+    {
+        $papiers = $entityManager->getRepository(Papier::class)->find($papier->getId());
+        $jsonContent = $serializer->serialize($papiers, 'json', [
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+             }
+         ]);
+        return new Response($jsonContent, 200, [
+            'Content-Type' => 'application/json'
+        ]);
+    }
 }
